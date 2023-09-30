@@ -65,8 +65,7 @@ public:
         const double rev_size = 1.0 / words.size();
         double tf;
         for (string word : words) {
-            tf = static_cast<double>(count(words.begin(), words.end(), word)) * rev_size;
-            documents_[word].insert({ document_id, tf });
+            documents_[word][document_id] += rev_size;
 
         }
         documents_count_++;
@@ -105,13 +104,9 @@ private:
                 idf = CalcIDF(word);
                 for (const auto& pair_id_tf : documents_.at(word)) {
                     map_id_rel[pair_id_tf.first] += idf * pair_id_tf.second;
-
-
                 }
-
             }
         }
-
 
         for (const string& word : query.minus_words) {
             if (documents_.count(word))
@@ -126,7 +121,6 @@ private:
             if (doc.second != -1) {
                 res.push_back({ doc.first, static_cast<double>(doc.second) });
             }
-
         }
 
 
@@ -162,9 +156,7 @@ private:
             else {
                 res.plus_words.insert(word);
             }
-
         }
-
         return res;
     }
 };
