@@ -112,25 +112,25 @@ enum class DocumentStatus {
 class SearchServer {
 public:
     inline static constexpr int INVALID_DOCUMENT_ID = -1;
-    explicit SearchServer(const string& stop_words) {
-        CheckTextValid(stop_words);
-        vector<string> stop_words_vector = SplitIntoWords(stop_words);
-        set<string> res(stop_words_vector.begin(), stop_words_vector.end());
-        stop_words_ = res;
-    }
+
 
     template <typename Container>
     explicit SearchServer(const Container& stop_words) {
         for (const auto& word : stop_words) {
-            CheckTextValid(word);
+            if (!CheckTextValid(word)) throw invalid_argument("invalid text"s);
         }
         set<string> res(stop_words.begin(), stop_words.end());
         stop_words_ = res;
     }
 
+    explicit SearchServer(const string& stop_words) {
+        SearchServer(SplitIntoWords(stop_words));
+    }
+
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
-        CheckIDValid(document_id);
-        CheckTextValid(document);
+        if (!CheckIDValid(document_id)) throw invalid_argument("invalid ID"s);
+        if (!CheckTextValid(document)) throw invalid_argument("invalid text"s);
+
 
         const vector<string> words = SplitIntoWordsNoStop(document);
         const double inv_word_count = 1.0 / words.size();
@@ -145,7 +145,7 @@ public:
 
     template <typename Predicate>
     vector<Document> FindTopDocuments(const string& raw_query, Predicate func) const {
-        CheckTextValid(raw_query, true);
+        if (!CheckTextValid(raw_query)) throw invalid_argument("invalid text");
         const Query query = ParseQuery(raw_query);
 
         vector<Document> matched_documents = FindAllDocuments(query, func);
@@ -175,7 +175,7 @@ public:
 
     tuple<vector<string>, DocumentStatus> MatchDocument(const string& raw_query, int document_id) const {
         const Query query = ParseQuery(raw_query);
-        CheckTextValid(raw_query, true);
+        if (!CheckTextValid(raw_query)) throw invalid_argument("invalid text"s);
         vector<string> matched_words;
         for (const string& word : query.plus_words) {
             if (word_to_document_freqs_.count(word) == 0) {
@@ -198,10 +198,7 @@ public:
     }
 
     int GetDocumentId(int index) const {
-        if (!(index >= 0 && index < documents_order_.size())) {
-            throw out_of_range("Index out of range");
-        }
-        return documents_order_[index];
+        return documents_order_.at(index);
     }
 
 private:
@@ -215,30 +212,12 @@ private:
     map<int, DocumentData> documents_;
     vector<int> documents_order_;
 
-    void CheckIDValid(int document_id) const {
-        if (documents_.count(document_id) || document_id < 0) {
-            throw invalid_argument("Invalid ID.");
-        }
-
+    bool CheckIDValid(int document_id) const {
+        return !(documents_.count(document_id) == 0 && document_id >= 0);
     }
 
-    void CheckTextValid(const string& text, bool text_with_minus_words = false) const {
-        if (!none_of(text.begin(), text.end(), [](char c) {return c >= 0 && c <= 31; })) {
-            throw invalid_argument("Special simbols in the text");
-        }
-
-        if (text_with_minus_words) {
-            vector<string> parsed_text = SplitIntoWordsNoStop(text);
-            for (const string& word : parsed_text) {
-                if (word[0] == '-') {
-                    if (word.size() == 1) throw invalid_argument("No words after '-' ");
-                    if (word[1] == '-') throw invalid_argument("'--' is invalid format for minus words");
-                }
-
-            }
-        }
-
-
+    bool CheckTextValid(const string& text, bool text_with_minus_words = false) const {
+        return none_of(text.begin(), text.end(), [](char c) {return c >= 0 && c <= 31; });
     }
 
     bool IsStopWord(const string& word) const {
@@ -271,7 +250,10 @@ private:
 
     QueryWord ParseQueryWord(string text) const {
         bool is_minus = false;
+
         if (text[0] == '-') {
+            if (text.size() == 1) throw invalid_argument("No words after '-'"s);
+            if (text[1] == '-') throw invalid_argument("'--' is invalid format for minus word."s);
             is_minus = true;
             text = text.substr(1);
         }
