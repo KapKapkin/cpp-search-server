@@ -123,8 +123,10 @@ public:
         stop_words_ = res;
     }
 
-    explicit SearchServer(const string& stop_words) {
-        SearchServer(SplitIntoWords(stop_words));
+    explicit SearchServer(const string& stop_words)
+        :SearchServer(SplitIntoWords(stop_words))
+    {
+
     }
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
@@ -213,7 +215,7 @@ private:
     vector<int> documents_order_;
 
     bool CheckIDValid(int document_id) const {
-        return !(documents_.count(document_id) == 0 && document_id >= 0);
+        return (documents_.count(document_id) == 0 && document_id >= 0);
     }
 
     bool CheckTextValid(const string& text, bool text_with_minus_words = false) const {
