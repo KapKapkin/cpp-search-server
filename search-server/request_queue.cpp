@@ -1,6 +1,5 @@
 #include "request_queue.h"
 
-
 RequestQueue::RequestQueue(SearchServer& search_server)
     :server_(search_server)
 {}

@@ -5,7 +5,9 @@
 #include <numeric>
 #include <vector>
 #include <string>
+#include <set>
 #include <cmath>
+
 
 #include "string_processing.h"
 #include "document.h"
@@ -23,7 +25,6 @@ public:
     explicit SearchServer(const std::string& stop_words);
 
     void AddDocument(int document_id, const std::string& document, DocumentStatus status, const std::vector<int>& ratings);
-
 
     template <typename Predicate>
     std::vector<Document> FindTopDocuments(const std::string& raw_query, Predicate func) const;

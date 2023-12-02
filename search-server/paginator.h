@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 
 template <typename It>
@@ -31,15 +32,15 @@ It IteratorRange<It>::end() const {
 template <typename It>
 class Paginator {
 public:
-    Paginator(It begin, It end, int page_size);
-    const auto& begin() const;
-    const auto& end() const;
+    Paginator(It begin, It end, std::size_t page_size);
+    auto begin() const;
+    auto end() const;
 private:
     std::vector<IteratorRange<It>> _pages;
  };
 
 template <typename It>
-Paginator<It>::Paginator(It begin, It end, int page_size) {
+Paginator<It>::Paginator(It begin, It end, std::size_t page_size) {
 
     if (page_size == 0) return;
     auto last = begin;
@@ -59,16 +60,16 @@ Paginator<It>::Paginator(It begin, It end, int page_size) {
 }
 
 template <typename It>
-const auto& Paginator<It>::begin() const {
+auto Paginator<It>::begin() const {
     return _pages.begin();
 }
 
 template <typename It>
-const auto& Paginator<It>::end() const {
+auto Paginator<It>::end() const {
     return _pages.end();
 }
 
 template <typename Container>
-auto Paginate(const Container& c, size_t page_size) {
+auto Paginate(const Container& c, std::size_t page_size) {
     return Paginator(begin(c), end(c), page_size);
 }

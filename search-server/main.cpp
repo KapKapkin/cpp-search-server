@@ -7,6 +7,7 @@
 #include "search_server.h"
 #include "paginator.h"
 #include "document.h"
+#include "request_queue.h"
 
 using namespace std;
 
@@ -25,6 +26,7 @@ void Print(std::ostream& out, const Container& container) {
         if (!flag) {
             out << ", ";
         }
+
         out << element;
         flag = false;
     }
