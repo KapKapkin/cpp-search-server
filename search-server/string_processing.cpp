@@ -20,7 +20,3 @@ std::vector<std::string> SplitIntoWords(const std::string& text) {
     return words;
 }
 
-std::ostream& operator << (std::ostream& output, const Document& doc) {
-    output << "{ document_id = " << doc.id << ", relevance = " << doc.relevance << ", rating = " << doc.rating << " }";
-    return output;
-}

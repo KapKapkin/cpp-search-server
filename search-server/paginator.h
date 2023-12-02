@@ -32,8 +32,8 @@ template <typename It>
 class Paginator {
 public:
     Paginator(It begin, It end, int page_size);
-    auto begin() const;
-    auto end() const;
+    const auto& begin() const;
+    const auto& end() const;
 private:
     std::vector<IteratorRange<It>> _pages;
  };
@@ -59,12 +59,12 @@ Paginator<It>::Paginator(It begin, It end, int page_size) {
 }
 
 template <typename It>
-auto Paginator<It>::begin() const {
+const auto& Paginator<It>::begin() const {
     return _pages.begin();
 }
 
 template <typename It>
-auto Paginator<It>::end() const {
+const auto& Paginator<It>::end() const {
     return _pages.end();
 }
 
